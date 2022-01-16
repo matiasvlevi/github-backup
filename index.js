@@ -48,8 +48,9 @@ if (USER !== undefined && TOKEN !== undefined) {
     );
 
     // Clone all of em.
-    let i = 0;
-    for (let repo of res.data) {
+
+    for (let i = 0; i < res.data.length; i++) {
+      let repo = res.data[i];
       let cname = `\x1b[32m${repo.full_name}\x1b[0m`;
       let percent = `${p((i+1)/len)}%`
 
@@ -58,13 +59,17 @@ if (USER !== undefined && TOKEN !== undefined) {
       } else {
         // Clone
         let url = `https://github.com/${repo.full_name}.git`;
-        if (!dev) await exec(`git clone ${url}`);
+        try {
+          if (!dev) await exec(`git clone ${url}`);
+        } catch (e) {
+          console.log('Github API Failed, retrying');
+          i--;
+        }
 
         // Log
         console.log(`\x1b[32mCloned\x1b[0m   ${percent} ${cname}`);
         await delay(500);
       }
-      i++;
     }
 
     // Clean all non-backup related files
