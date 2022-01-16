@@ -1,11 +1,25 @@
 const isWin = (require('os').platform() === 'win32');
-const { existsSync, unlink } = require('fs');
+const { existsSync, unlinkSync, unlink } = require('fs');
 
 const util = require('util');
 const delay = util.promisify(setTimeout);
 const exec = util.promisify(
   require('child_process').exec
 );
+
+function clean() {
+  unlinkSync('./README.md');
+  unlinkSync('./.gitignore');
+  unlinkSync('./.gitattributes');
+  unlinkSync('./.env');
+  unlinkSync('./package.json');
+  unlinkSync('./package-lock.json');
+  unlinkSync('./node_modules');
+  // Self
+  let cmd = isWin ? 'start' : 'source';
+  let ext = isWin ? 'bat' : 'sh';
+  await exec(`${cmd} clean.${ext}`);
+}
 
 const config = require('dotenv').config().parsed;
 
@@ -23,7 +37,7 @@ const p = (x) => {
 octokit.request(`GET /users/{name}/repos`, {
   name: config.USER,
   type: "private",
-  per_page: '100'
+  per_page: '5'
 }).then(async(res) => {
   let len = res.data.length;
   console.log(`\n` +
@@ -38,7 +52,7 @@ octokit.request(`GET /users/{name}/repos`, {
     let cname = `\x1b[32m${repo.full_name}\x1b[0m`;
     let percent = `${p(i/len)}%`
 
-    if (existsSync(`./${config.USER}/${repo.name}`)) {
+    if (existsSync(`./${repo.name}`)) {
       console.log(`\x1b[33mExisting\x1b[0m ${percent} ${cname}`);
     } else {
       // Clone
@@ -55,15 +69,3 @@ octokit.request(`GET /users/{name}/repos`, {
   // Clean all non-backup related files
   if (!dev) clean();
 });
-
-function clean() {
-  unlink('./README.md');
-  unlink('./.gitignore');
-  unlink('./.gitattributes');
-  unlink('./.env');
-  unlink('./package.json');
-  unlink('./package-lock.json');
-  unlink('./node_modules');
-  // Self
-  unlink(__filename);
-}
