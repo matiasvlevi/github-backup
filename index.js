@@ -38,7 +38,7 @@ if (USER !== undefined && TOKEN !== undefined) {
   octokit.request(`GET /users/{name}/repos`, {
     name: USER,
     type: "private",
-    per_page: '5'
+    per_page: '100'
   }).then(async(res) => {
     let len = res.data.length;
     console.log(`\n` +
