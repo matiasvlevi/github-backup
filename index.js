@@ -14,10 +14,8 @@ const octokit = new Octokit({ auth: config.TOKEN });
 
 let dev = (process.argv[2] || '') === 'dev';
 
-// Create backup directory if does not exist
-const backupDir = `./${config.USER}`;
-
 // Create dir if does not exist
+const backupDir = `./${config.USER}`;
 (async() => {
   if (!existsSync(backupDir))
     await exec(`mkdir ${backupDir}`);
