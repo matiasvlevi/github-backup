@@ -1,16 +1,17 @@
+const delay = time => new Promise(res => setTimeout(res, time));
+const { existsSync } = require('fs');
+const os = require('os');
+
+const { exec } = require('child_process');
+const util = require('util');
+const exec_ = util.promisify(exec);
+
 const config = require('dotenv').config().parsed;
 
 const { Octokit } = require("@octokit/core");
 const octokit = new Octokit({ auth: config.TOKEN });
 
-const { existsSync } = require('fs');
-const { exec } = require('child_process');
-const util = require('util');
-const exec_ = util.promisify(exec);
-
-const os = require('os');
-
-const delay = time => new Promise(res => setTimeout(res, time));
+let dev = (process.argv[2] || '') === 'dev';
 
 // Percent string
 const p = (x) => {
@@ -24,23 +25,27 @@ octokit.request(`GET /users/{name}/repos`, {
   type: "private",
   per_page: '100'
 }).then(async(res) => {
-  console.log(` Starting download`);
-  console.log(` User: ${config.USER}`);
-  console.log(` Repositories found:  ${res.data.length}\n\n`);
+  console.log(`\n` +
+    `Github Backup\n` +
+    `User: \x1b[32m${config.USER}\x1b[0m\n` +
+    `Repositories found: \x1b[32m${res.data.length}\x1b[0m\n`
+  );
 
   // Clone all of em.
   let i = 0;
   for (let repo of res.data) {
     let name = repo.name;
+    let cname = `\x1b[32m${repo.full_name}\x1b[0m`;
+    let percent = `${p(i/res.data.length)}%`
     if (existsSync(`./${name}`)) {
-      console.log(' Repo allready exists');
+      console.log(`\x1b[33mExisting\x1b[0m ${percent} ${cname}`);
     } else {
-      await exec_(
-        `git clone https://github.com/${repo.full_name}.git`
-      );
-      console.log(
-        ` Download ${p(i/res.data.length)}% \x1b[32m${repo.full_name}\x1b[0m`
-      );
+      // Clone
+      let url = `https://github.com/${repo.full_name}.git ./${config.USER}/${name}`;
+      if (!dev) await exec_(`git clone ${url}`);
+
+      // Log
+      console.log(`\x1b[32mCloned\x1b[0m   ${percent} ${cname}`);
       await delay(500);
     }
     i++;
@@ -49,5 +54,5 @@ octokit.request(`GET /users/{name}/repos`, {
   // Clean all non-backup related files
   let cmd = (os.platform() === 'win32') ? 'start' : 'source';
   let ext = (os.platform() === 'win32') ? 'bat' : 'sh';
-  await exec_(`${cmd} clean.${ext}`);
+  if (!dev) await exec_(`${cmd} clean.${ext}`);
 });
