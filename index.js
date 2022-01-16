@@ -15,7 +15,6 @@ async function clean() {
   unlinkSync('./README.md');
   unlinkSync('./.gitignore');
   unlinkSync('./.gitattributes');
-  unlinkSync('./.env');
   unlinkSync('./package.json');
   unlinkSync('./package-lock.json');
   // Self
