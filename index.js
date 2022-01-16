@@ -12,6 +12,7 @@ let TOKEN = process.argv[3];
 let dev = (process.argv[4] || '') === 'dev';
 
 async function clean() {
+  await delay(500);
   unlinkSync('./README.md');
   unlinkSync('./.gitignore');
   unlinkSync('./.gitattributes');
@@ -50,7 +51,7 @@ if (USER !== undefined && TOKEN !== undefined) {
     let i = 0;
     for (let repo of res.data) {
       let cname = `\x1b[32m${repo.full_name}\x1b[0m`;
-      let percent = `${p(i/len)}%`
+      let percent = `${p((i+1)/len)}%`
 
       if (existsSync(`./${repo.name}`)) {
         console.log(`\x1b[33mExisting\x1b[0m ${percent} ${cname}`);
