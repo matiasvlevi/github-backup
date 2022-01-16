@@ -14,15 +14,9 @@ cd github-backup
 npm ci
 ```
 
-### Create `.env`
-
-```
-TOKEN="your-github-token"
-USER="username"
-```
 
 ### Run
 
 ```
-npm run backup
+npm run backup <username> <ghp_token>
 ```
