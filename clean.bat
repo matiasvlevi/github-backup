@@ -1,6 +1,6 @@
 del /F /Q clean.sh index.js
-del /F /Q /S node_modules
-del /F /Q /A:H .git
+del /F /S /Q node_modules
+del /F /S /Q /A .git
 echo "Cleaned all files"
 pause
 
