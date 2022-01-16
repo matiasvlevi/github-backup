@@ -2,7 +2,6 @@
  
 Clone all of your user-hosted repositories.
 
-A simple nodejs script
 
 ### Install
 
