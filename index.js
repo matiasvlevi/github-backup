@@ -1,10 +1,11 @@
-const delay = time => new Promise(res => setTimeout(res, time));
+const isWin = (require('os').platform() === 'win32');
 const { existsSync } = require('fs');
-const os = require('os');
 
-const { exec } = require('child_process');
 const util = require('util');
-const exec_ = util.promisify(exec);
+const delay = util.promisify(setTimeout);
+const exec = util.promisify(
+  require('child_process').exec
+);
 
 const config = require('dotenv').config().parsed;
 
@@ -12,6 +13,15 @@ const { Octokit } = require("@octokit/core");
 const octokit = new Octokit({ auth: config.TOKEN });
 
 let dev = (process.argv[2] || '') === 'dev';
+
+// Create backup directory if does not exist
+const backupDir = `./${config.USER}`;
+
+// Create dir if does not exist
+(async() => {
+  if (!existsSync(backupDir))
+    await exec(`mkdir ${backupDir}`);
+})();
 
 // Percent string
 const p = (x) => {
@@ -37,12 +47,13 @@ octokit.request(`GET /users/{name}/repos`, {
     let name = repo.name;
     let cname = `\x1b[32m${repo.full_name}\x1b[0m`;
     let percent = `${p(i/res.data.length)}%`
-    if (existsSync(`./${name}`)) {
+
+    if (existsSync(`./${config.USER}/${name}`)) {
       console.log(`\x1b[33mExisting\x1b[0m ${percent} ${cname}`);
     } else {
       // Clone
-      let url = `https://github.com/${repo.full_name}.git ./${config.USER}/${name}`;
-      if (!dev) await exec_(`git clone ${url}`);
+      let url = `https://github.com/${repo.full_name}.git ${backupDir}/${name}`;
+      if (!dev) await exec(`git clone ${url}`);
 
       // Log
       console.log(`\x1b[32mCloned\x1b[0m   ${percent} ${cname}`);
@@ -52,7 +63,7 @@ octokit.request(`GET /users/{name}/repos`, {
   }
 
   // Clean all non-backup related files
-  let cmd = (os.platform() === 'win32') ? 'start' : 'source';
-  let ext = (os.platform() === 'win32') ? 'bat' : 'sh';
-  if (!dev) await exec_(`${cmd} clean.${ext}`);
+  let cmd = (isWin) ? 'start' : 'source';
+  let ext = (isWin) ? 'bat' : 'sh';
+  if (!dev) await exec(`${cmd} clean.${ext}`);
 });
