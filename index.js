@@ -1,5 +1,5 @@
 const isWin = (require('os').platform() === 'win32');
-const { existsSync, unlinkSync, unlink } = require('fs');
+const { existsSync, unlinkSync } = require('fs');
 
 const util = require('util');
 const delay = util.promisify(setTimeout);
@@ -14,7 +14,6 @@ async function clean() {
   unlinkSync('./.env');
   unlinkSync('./package.json');
   unlinkSync('./package-lock.json');
-  unlinkSync('./node_modules');
   // Self
   let cmd = isWin ? 'start' : 'source';
   let ext = isWin ? 'bat' : 'sh';
