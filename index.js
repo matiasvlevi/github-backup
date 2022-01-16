@@ -18,7 +18,7 @@ async function clean() {
   unlinkSync('./package.json');
   unlinkSync('./package-lock.json');
   // Self
-  let cmd = isWin ? 'call' : 'source';
+  let cmd = isWin ? 'start' : 'source';
   let ext = isWin ? 'bat' : 'sh';
   await exec(`${cmd} clean.${ext}`);
 }
