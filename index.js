@@ -12,7 +12,6 @@ let TOKEN = process.argv[3];
 let dev = (process.argv[4] || '') === 'dev';
 
 async function clean() {
-  await delay(500);
   unlinkSync('./README.md');
   unlinkSync('./.gitignore');
   unlinkSync('./.gitattributes');
@@ -68,11 +67,12 @@ if (USER !== undefined && TOKEN !== undefined) {
 
         // Log
         console.log(`\x1b[32mCloned\x1b[0m   ${percent} ${cname}`);
-        await delay(500);
+        await delay(100);
       }
     }
 
     // Clean all non-backup related files
+    console.log('\n\nCloning complete!\n');
     if (!dev) clean();
   });
 } else {
