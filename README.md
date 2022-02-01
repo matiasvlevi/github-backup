@@ -1,6 +1,6 @@
 # github-backup
  
-Clone all of your user-hosted repositories.
+Clone all of your github repositories.
 
 
 ### Install
