@@ -20,3 +20,8 @@ npm ci
 ```
 npm run backup <username> <ghp_token>
 ```
+
+
+<br/>
+
+All code from this repo gets deleted after a backup, leaving only the cloned repositories in `github-backup` 
